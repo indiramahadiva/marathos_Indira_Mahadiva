@@ -9,7 +9,7 @@ Silver layer - marathon_obt
 - Derived athlete_age and event_start_date.
 - Scoped to year_of_event >= 2000.
 - Dropped stage race rows (etappe, etape, stage N).
-- Recomputed athlete_avg_speed_kmh. Dropped speeds > 30 km/h or = 0.
+- Recomputed athlete_avg_speed_kmh. Dropped speeds > 30 km/h or = 0, Also drops rows where computed speed is null. 
 - Dropped unidentified athletes (XXX country or null birth year).
 - Rebuilt athlete_id as xxhash64(source_id, birth_year, gender, country).
 - Deduplicated on (athlete_id, event_name, event_dates, performance).
@@ -35,6 +35,9 @@ def marathon_obt():
     # Read from bronze + snake_case the columns
     df = spark.readStream.table("marathos.bronze.raw_marathos")
     df = rename_columns_to_snake_case(df)
+
+    # Normalize country codes to uppercase (source has variants like 'swe')
+    df = df.withColumn("athlete_country", expr("upper(athlete_country)"))
 
     # Split "event_distancelength" (e.g. "50km") into value + unit
     df = (df
@@ -99,10 +102,10 @@ def marathon_obt():
             expr("xxhash64(event_name, athlete_id, athlete_performance, event_dates)"))
     )
 
-    # Drop speeds > 30 km/h (unrealistic) or = 0 (DNS/DNF).
+    # Drop rows with implausible speeds: >30 km/h (faster than marathon WR),
+    # 0 km/h (DNS/DNF coded as zero), or null.
     df = df.filter(
-        (col("athlete_avg_speed_kmh").isNull())
-        | ((col("athlete_avg_speed_kmh") > 0) & (col("athlete_avg_speed_kmh") <= 30))
+        (col("athlete_avg_speed_kmh") > 0) & (col("athlete_avg_speed_kmh") <= 30)
     )
 
     # Drop unidentified athletes - 'XXX' country and null birth year cause different athletes to share the same athlete_id.
