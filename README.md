@@ -31,6 +31,8 @@ Medallion architecture: bronze → silver → gold, all built as one DLT pipelin
 ---
 
 ## Repo structure
+
+```
 marathos_Indira_Mahadiva/
 ├── README.md
 ├── dimensional_modeling/
@@ -54,12 +56,12 @@ marathos_Indira_Mahadiva/
 ├── utils/
 │   └── utils.py
 └── explorations/
-├── initial_setup.dbquery.ipynb
-├── eda_bronze.ipynb
-├── eda_silver.ipynb
-├── eda_gold.ipynb
-└── genie_demo.dbquery.ipynb
-
+    ├── initial_setup.dbquery.ipynb
+    ├── eda_bronze.ipynb
+    ├── eda_silver.ipynb
+    ├── eda_gold.ipynb
+    └── genie_demo.dbquery.ipynb
+```
 
 ---
 
@@ -80,5 +82,5 @@ marathos_Indira_Mahadiva/
 
 - In the silver layer (`marathon_obt.py`), the LLM helped me refine regex patterns for parsing performance strings, and suggested using `xxhash64` and `sha2` instead of `dense_rank` for streaming-safe surrogate IDs (a constraint my teacher's lab feedback also confirmed). 
 
-The synthetic Stockholm Ultra 2026 CSV (bonus 4) was produced by an LLM. I reviewed it line-by-line — I understand how the schema matches the source, how the random distributions create plausible 100km finish times, and how the bronze streaming table picks up the new file incrementally.
+- The synthetic Stockholm Ultra 2026 CSV (bonus 4) was produced by an LLM. I reviewed it line-by-line — I understand how the schema matches the source, how the random distributions create plausible 100km finish times, and how the bronze streaming table picks up the new file incrementally.
 
